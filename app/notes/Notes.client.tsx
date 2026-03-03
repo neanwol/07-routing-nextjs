@@ -16,7 +16,11 @@ import NoteForm from "@/components/NoteForm/NoteForm";
 import { useDebounce, useDebouncedCallback } from "use-debounce";
 import NoteList from "@/components/NoteList/NoteList";
 
-export default function NotesClient() {
+interface NotesClientProps {
+  tag?: string;
+}
+
+export default function NotesClient({ tag = "" }: NotesClientProps) {
     const [page,setPage] = useState(1);
     const[query, setQuery] = useState('');
     const[isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -25,8 +29,8 @@ export default function NotesClient() {
     const handleCloseModal = () => setIsModalOpen(false);
 
   const { data } = useQuery({
-    queryKey: ["notes", page, query],
-    queryFn: () => fetchNotes(page, query),
+    queryKey: ["notes", page, query, tag],
+    queryFn: () => fetchNotes(page, query, tag),
     placeholderData: keepPreviousData,
     refetchOnMount: false,
   });
@@ -48,7 +52,9 @@ export default function NotesClient() {
   const { mutate } = useMutation({
     mutationFn: deleteNote,
     onSuccess() {
+      // invalidate both plain notes queries and filtered ones
       queryClient.invalidateQueries({ queryKey: ["notes"] });
+      queryClient.invalidateQueries({ queryKey: ["notes", page, query, tag] });
     },
     onError(error) {
       console.log(error);

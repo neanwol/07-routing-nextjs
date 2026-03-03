@@ -44,16 +44,27 @@ interface fetchNotesResponseProps {
   totalPages: number;
 }
 
-export const fetchNotes = async(page: number = 1, searchText: string = "") => {
-    const { data } = await axios.get<fetchNotesResponseProps>("/notes", {
-        headers: {
-        Authorization: `Bearer ${myKey}`
-      },
-      params: {
-        page, 
-        perPage: 12,
-        search: searchText,
-      }
-    });
-    return data;
+export const fetchNotes = async(
+  page: number = 1,
+  searchText: string = "",
+  tag: string = ""
+) => {
+  const params: Record<string, unknown> = {
+    page,
+    perPage: 12,
+    search: searchText,
+  };
+
+  // backend expects no tag parameter when requesting all notes
+  if (tag && tag !== "all") {
+    params.tag = tag;
+  }
+
+  const { data } = await axios.get<fetchNotesResponseProps>("/notes", {
+    headers: {
+      Authorization: `Bearer ${myKey}`,
+    },
+    params,
+  });
+  return data;
 };

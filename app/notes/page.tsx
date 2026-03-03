@@ -10,16 +10,17 @@ export const metadata = {
 
 export default async function NotesPage() {
   const queryClient = getQueryClient();
+  const tag = '';
 
   await queryClient.prefetchQuery({
-    queryKey: ['notes', 1, ''],
-    queryFn: () => fetchNotes(1, ''),
+    queryKey: ['notes', 1, '', tag],
+    queryFn: () => fetchNotes(1, '', tag),
   });
 
   return (
     <main>
       <HydrationBoundary state={dehydrate(queryClient)}>
-        <NotesClient />
+        <NotesClient tag={tag} />
       </HydrationBoundary>
     </main>
   );
